@@ -23,8 +23,10 @@
   },
   "homepage": "https://github.com/chrisckchang/mean-contactlist",
   "dependencies": {
+    "@okta/oidc-middleware": "^0.1.2",
     "body-parser": "^1.13.3",
     "express": "^4.13.3",
+    "express-session": "^1.15.6",
     "mongodb": "^2.0.43",
     "nforce": "^1.10.0"
   }

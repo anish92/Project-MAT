@@ -1,37 +1,29 @@
 <div class="row" ng-hide="contact._id">
   <div class="col-md-6">
-      <h2>Create new contact</h2>
+      <h2>Create new employee entree</h2>
   </div>
 </div>
 <div class="container">
   <div>
     <p>
       <label>First Name (required)</label> 
-      <input id="name" class="form-control" type="text" ng-model="contact.firstName" required> 
+      <input id="name" class="form-control" type="text" ng-model="contact.first_name__c" required> 
     </p>
     <p>
       <label>Last Name (required)</label> 
-      <input id="name" class="form-control" type="text" ng-model="contact.lastName" required> 
+      <input id="name" class="form-control" type="text" ng-model="contact.last_name__c" required> 
     </p>
     <p>
       <label>Email (required)</label> 
       <input id="name" class="form-control" type="text" ng-model="contact.email" required> 
     </p>
     <p>
-      <label>Phone (Mobile)</label> 
-      <input id="name" class="form-control" type="text" ng-model="contact.phone.mobile"> 
+      <label>Gender</label> 
+      <input id="name" class="form-control" type="text" ng-model="contact.gender__c"> 
     </p>
     <p>
-      <label>Phone (Work)</label> 
-      <input id="name" class="form-control" type="text" ng-model="contact.phone.work"> 
-    </p>
-    <p>
-      <label>Address</label> 
-      <input id="name" class="form-control" type="text" ng-model="contact.address"> 
-    </p>
-    <p>
-      <label>Twitter Handle</label> 
-      <input id="name" class="form-control" type="text" ng-model="contact.twitter"> 
+      <label>Hire Date</label> 
+      <input id="name" class="form-control" type="text" ng-model="contact.hire_date__c"> 
     </p>
     <p>
       <button style="margin-top:20px" class="btn btn-default" ng-click="saveContact(contact)">Save</button>

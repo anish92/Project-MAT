@@ -2,14 +2,42 @@ var express = require("express");
 var path = require("path");
 var bodyParser = require("body-parser");
 var nforce = require('nforce');
+const { ExpressOIDC } = require('@okta/oidc-middleware');
+const session = require('express-session');
 // var mongodb = require("mongodb");
 // var ObjectID = mongodb.ObjectID;
-
-var CONTACTS_COLLECTION = "contacts";
-
 var app = express();
+// session support is required to use ExpressOIDC
+app.use(session({
+  secret: 'this should be secure',
+  resave: true,
+  saveUninitialized: false
+}));
+
+const oidc = new ExpressOIDC({
+  issuer: 'https://dev-172233.oktapreview.com/oauth2/default',
+  client_id: '0oaeuvvp3pUGLPYTS0h7',
+  client_secret: 'PMiYXiKYL-TE5De3GhrlczMSxKxBN8MukvP2fM31',
+  redirect_uri: 'http://localhost:3000/success',
+  scope: 'openid profile'
+});
+
+// ExpressOIDC will attach handlers for the /login and /authorization-code/callback routes
+app.use(oidc.router);
+
+
+oidc.on('ready', () => {
+  app.listen(3000, () => console.log(`Started!`));
+});
+
+oidc.on('error', err => {
+  console.log('Unable to configure ExpressOIDC', err);
+});
+
+
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
+
 
 // Create a database variable outside of the database connection callback to reuse the connection pool in your app.
 // var db;
@@ -22,7 +50,9 @@ var org = nforce.createConnection({
   mode: 'single'
 });
 
-
+app.get('/success', function (req, res) {
+  res.redirect('/#/home');
+})
 
 app.get('/getAccessToken', function(req, res){
   console.log(req.query.code);
@@ -31,10 +61,10 @@ app.get('/getAccessToken', function(req, res){
   });
 });
 
-var server = app.listen(process.env.PORT || 8080, function() {
-  var port = server.address().port;
-  console.log("App now running on port", port);
-});
+// var server = app.listen(process.env.PORT || 8080, function() {
+//   var port = server.address().port;
+//   console.log("App now running on port", port);
+// });
 
 
 
@@ -57,12 +87,12 @@ app.get("/contacts", function(req, res) {
     } else {
       console.log('Access Token: ' + resp.access_token);
       oauth = resp;
-      org.query({query: "select id, last_name__c, first_name__c from employee__c limit 10"}, function(err, resp) {
+      org.query({query: "select id, last_name__c, first_name__c, hire_date__c, gender__c from employee__c limit 10"}, function(err, resp) {
         if(err) throw err;
         if(resp.records){
-          console.log('im in');
+          
           res.send(resp.records);
-          console.log(resp.records);
+          
         }
       });  
     }
@@ -95,35 +125,50 @@ app.get("/contacts", function(req, res) {
 //  *    DELETE: deletes contact by id
 //  */
 
-// app.get("/contacts/:id", function(req, res) {
-//   db.collection(CONTACTS_COLLECTION).findOne({ _id: new ObjectID(req.params.id) }, function(err, doc) {
-//     if (err) {
-//       handleError(res, err.message, "Failed to get contact");
-//     } else {
-//       res.status(200).json(doc);  
-//     }
-//   });
-// });
+  app.get("/contacts/:id", function(req, res) {
+    console.log('attepting to get the contact');
+    org.getRecord({ type: 'employee__c', id: req.params.id}, function(err, ct){
+    if(err){
+      console.log(JSON.stringify(err));
+    } else{
+      res.status(201).send(ct);
+    }
+  });
+  });
 
-// app.put("/contacts/:id", function(req, res) {
-//   var updateDoc = req.body;
-//   delete updateDoc._id;
 
-//   db.collection(CONTACTS_COLLECTION).updateOne({_id: new ObjectID(req.params.id)}, updateDoc, function(err, doc) {
-//     if (err) {
-//       handleError(res, err.message, "Failed to update contact");
-//     } else {
-//       res.status(204).end();
-//     }
-//   });
-// });
+ app.put("/contacts/:id", function(req, res) {
+  var cotact = req.body;
 
-// app.delete("/contacts/:id", function(req, res) {
-//   db.collection(CONTACTS_COLLECTION).deleteOne({_id: new ObjectID(req.params.id)}, function(err, result) {
-//     if (err) {
-//       handleError(res, err.message, "Failed to delete contact");
-//     } else {
-//       res.status(204).end();
-//     }
-//   });
-// });
+  if(!(req.body.last_name__c)){
+    handleError(res, "must provide last name");
+  }
+
+  var ct = nforce.createSObject('employee__c', {
+    id: req.parms.id,
+    first_name__c: req.parms.first_name__c,
+    last_name__c: req.parms.last_name__c,
+    gender__c: req.parms.gender__c,
+    hire_date__c: req.parms.hire_date__c
+  });
+
+  org.update({ sobject : ct });  
+ });
+
+
+app.delete("/contacts/:id", function(req, res) {
+  var contactId = req.params.id;
+  console.log('this is' + req.params.id);
+  var ct = nforce.createSObject('employee__c', {
+    id : contactId
+  });
+  org.delete({sobject : ct}, function(err, ct) {
+    if(err) {
+      console.error('--> unable to retrieve lead');
+      console.error('--> ' + JSON.stringify(err));
+    } else {
+      console.log('--> contact deleted');
+      res.status(204).end();
+    }
+  });
+});

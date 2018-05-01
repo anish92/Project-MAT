@@ -2,6 +2,9 @@ angular.module("contactsApp", ['ngRoute'])
     .config(function($routeProvider) {
         $routeProvider
             .when("/", {
+                templateUrl: "login.html"
+            })
+            .when("/home", {
                 templateUrl: "list.html",
                 controller: "ListController",
                 resolve: {
@@ -75,7 +78,7 @@ angular.module("contactsApp", ['ngRoute'])
     })
     .controller("NewContactController", function($scope, $location, Contacts) {
         $scope.back = function() {
-            $location.path("#/");
+            $location.path("/home");
         }
 
         $scope.saveContact = function(contact) {
@@ -101,13 +104,13 @@ angular.module("contactsApp", ['ngRoute'])
 
         $scope.back = function() {
             $scope.editMode = false;
-            $scope.contactFormUrl = "";
+            $scope.contactFormUrl = "/home";
         }
 
         $scope.saveContact = function(contact) {
             Contacts.editContact(contact);
             $scope.editMode = false;
-            $scope.contactFormUrl = "";
+            $scope.contactFormUrl = "/home";
         }
 
         $scope.deleteContact = function(contactId) {

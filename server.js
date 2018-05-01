@@ -102,12 +102,12 @@ app.get("/contacts", function(req, res) {
   app.post("/contacts", function(req, res) {
     var newEmployee = req.body;
 
-    if(!(req.body.lastname)) {
+    if(!(req.body.last_name__c)) {
       handleError(res, "invalid, must input lastname");
     }
 
     console.log('Attempting to insert employee');
-    var ct = nforce.createSObject('Contact', newEmployee);
+    var ct = nforce.createSObject('employee__c', newEmployee);
     org.insert({ sobject: ct }, function(err, resp) {
       if(err) {
         console.error('--> unable to insert');

@@ -15,9 +15,9 @@ app.use(session({
 }));
 
 const oidc = new ExpressOIDC({
-  issuer: 'https://dev-172233.oktapreview.com/oauth2/default',
-  client_id: '0oaeuvvp3pUGLPYTS0h7',
-  client_secret: 'PMiYXiKYL-TE5De3GhrlczMSxKxBN8MukvP2fM31',
+  issuer: 'https://sjsucmpe172s18.okta.com',
+  client_id: '0oa12y3jyxaO7qkYS2p7',
+  client_secret: 'qb55Acop2aLaQVuPQVgNx--I5-KCQGZ0yVH1Jb3A',
   redirect_uri: 'http://localhost:3000/success',
   scope: 'openid profile'
 });
